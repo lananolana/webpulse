@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: WebPulse
+  description: WebPulse
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /health:
+    get:
+      summary: Webpulse health check
+      description: Webpulse health check
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the webpulse service
+                    example: OK
+  /status:
+    get:
+      summary: Get site status
+      description: Get site status
+      parameters:
+        - in: query
+          name: url
+          schema:
+            type: string
+            example: google.com
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the site
+                    example: success
+                  availability:
+                    $ref: '#/components/schemas/Availability'
+                  performance:
+                    $ref: '#/components/schemas/Performance'
+                  security:
+                    $ref: '#/components/schemas/Security'
+                  server_info:
+                    $ref: '#/components/schemas/ServerInfo'
+components:
+  schemas:
+    Availability:
+      type: object
+      properties:
+        is_available:
+          type: boolean
+          description: Whether the site is available
+          example: true
+        http_status_code:
+          type: integer
+          description: HTTP status code
+          example: 200
+    Performance:
+      type: object
+      properties:
+        response_time_ms:
+          type: number
+          description: Response time in milliseconds
+          example: 123
+        transfer_speed_kbps:
+          type: number
+          description: Transfer speed in kilobytes per second
+          example: 56.78
+        response_size_kb:
+          type: number
+          description: Response size in kilobytes
+          example: 12.34
+        optimization:
+          type: string
+          description: Optimization
+          example: gzip
+    Security:
+      type: object
+      properties:
+        ssl:
+          $ref: '#/components/schemas/SSL'
+        cors:
+          $ref: '#/components/schemas/CORS'
+        dns:
+          $ref: '#/components/schemas/DNS'
+    ServerInfo:
+      type: object
+      properties:
+        ip_address:
+          type: string
+          description: IP address
+          example: 93.184.216.34
+        web_server:
+          type: string
+          description: Web server
+          example: nginx
+        dns_response_time_ms:
+          type: number
+          description: DNS response time in milliseconds
+          example: 45
+        dns_records:
+          type: object
+          properties:
+            A:
+              type: array
+              items:
+                type: string
+                example: 93.184.216.34
+            CNAME:
+              type: array
+              items:
+                type: string
+            MX:
+              type: array
+              items:
+                type: string
+                example: mail.example.com
+    SSL:
+      type: object
+      properties:
+        is_valid:
+          type: boolean
+          description: Whether the SSL certificate is valid
+          example: true
+        expires_at:
+          type: string
+          description: Expiration time
+          example: 2025-01-01T00:00:00Z
+        issuer:
+          type: string
+          description: Issuer
+          example: Let's Encrypt
+        certificate_authority:
+          type: string
+          description: Certificate authority
+          example: Let's Encrypt
+    CORS:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether CORS is enabled
+          example: true
+        allow_origin:
+          type: string
+          description: Allow origin
+          example: "*"
+    DNS:
+      type: object
+      properties:
+        response_time_ms:
+          type: number
+          description: DNS response time in milliseconds
+          example: 45
+        servers:
+          type: array
+          items:
+            type: string
+            example: 1.1.1.1
