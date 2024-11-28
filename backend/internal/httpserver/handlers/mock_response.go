@@ -16,7 +16,7 @@ const mockResponseStatus = `
     "security": {
         "ssl": {
             "valid": true,
-            "expires_in_timestamp": 1735824000,
+            "expires_at": 1735824000,
             "issuer": "Let's Encrypt"
         },
         "cors": {
@@ -32,7 +32,7 @@ const mockResponseStatus = `
             "A": [
                 "93.184.216.34"
             ],
-            "CNAME": [],
+            "CNAME": "example.com",
             "MX": [
                 "mail.example.com"
             ]
