@@ -53,6 +53,7 @@ func (h *SiteHandler) GetSiteStatus(w http.ResponseWriter, r *http.Request) {
 
 	if h.mock {
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
 		if _, err = w.Write([]byte(mockResponseStatus)); err != nil {
 			slog.Error("failed to write response", err)
 		}

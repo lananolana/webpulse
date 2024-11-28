@@ -27,13 +27,6 @@ func New(r *chi.Mux, cfg config.HTTPServer) *Srv {
 	r.Use(middleware.RequestID)
 	r.Use(appmiddlewares.Logging)
 	r.Use(middleware.StripSlashes)
-	r.Use(middleware.AllowContentType("application/json", "application/text"))
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			next.ServeHTTP(w, r)
-		})
-	})
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
