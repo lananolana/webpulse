@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: WebPulse
+  description: WebPulse
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /health:
+    get:
+      summary: Webpulse health check
+      description: Webpulse health check
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the webpulse service
+                    example: OK
+  /status:
+    get:
+      summary: Get site status
+      description: Get site status
+      parameters:
+        - in: query
+          name: url
+          schema:
+            type: string
+            example: google.com
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the site
+                    example: success
+                  availability:
+                    $ref: '#/components/schemas/Availability'
+                  performance:
+                    $ref: '#/components/schemas/Performance'
+                  security:
+                    $ref: '#/components/schemas/Security'
+                  server_info:
+                    $ref: '#/components/schemas/ServerInfo'
+
+components:
+  schemas:
+    Availability:
+      type: object
+      properties:
+        is_available:
+          type: boolean
+        http_status_code:
+          type: integer
+          example: 200
+    Performance:
+      type: object
+      properties:
+        response_time_ms:
+          type: integer
+        transfer_speed_kbps:
+          type: number
+          example: 56.78
+        response_size_kb:
+          type: number
+          example: 12.34
+        optimization:
+          type: string
+          example: gzip
+    Security:
+      type: object
+      properties:
+        ssl:
+          $ref: '#/components/schemas/SSL'
+        cors:
+          $ref: '#/components/schemas/CORS'
+        dns:
+          $ref: '#/components/schemas/DNS'
+    ServerInfo:
+      type: object
+      properties:
+        ip_address:
+          type: string
+          example: 93.184.216.34
+        web_server:
+          type: string
+          example: nginx
+        dns_response_time_ms:
+          type: number
+          example: 45
+        dns_records:
+          type: object
+          properties:
+            A:
+              type: array
+              items:
+                type: string
+                example: 93.184.216.34
+            CNAME:
+              type: string
+              example: "example.com"
+            MX:
+              type: array
+              items:
+                type: string
+                example: mail.example.com
+    SSL:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        expires_at:
+          type: integer
+          example: 1735824000
+        issuer:
+          type: string
+          example: Let's Encrypt
+    CORS:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        allow_origin:
+          type: string
+          description: Allow origin
+          example: "*"
+    DNS:
+      type: object
+      properties:
+        response_time_ms:
+          type: number
+          description: DNS response time in milliseconds
+          example: 45
+        servers:
+          type: array
+          items:
+            type: string
+            example: 1.1.1.1

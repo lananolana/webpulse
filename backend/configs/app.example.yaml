@@ -1,0 +1,12 @@
+app:
+  # mock [true, false]
+  mock: true
+
+    # log_level: [DEBUG, INFO, WARNING, ERROR]
+  log_level: INFO
+
+  # log_format: [text, json]
+  log_format: json
+
+  http:
+    listen_addr: 0.0.0.0:8080

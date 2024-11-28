@@ -1,0 +1,11 @@
+services:
+  webpulse_backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: webpulse_backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./configs:/app/configs
+      - ./logs:/app/logs
