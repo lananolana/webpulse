@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/lananolana/webpulse/backend/internal/config"
 	"github.com/lananolana/webpulse/backend/pkg/closer"
 	appmiddlewares "github.com/lananolana/webpulse/backend/pkg/http_tools/middlewares"
 	_ "github.com/swaggo/files"
@@ -21,7 +22,7 @@ type Srv struct {
 }
 
 // New creates new http server with API routes and middlewares
-func New(r *chi.Mux, addr string) *Srv {
+func New(r *chi.Mux, cfg config.HTTPServer) *Srv {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
 	r.Use(appmiddlewares.Logging)
@@ -54,8 +55,11 @@ func New(r *chi.Mux, addr string) *Srv {
 
 	return &Srv{
 		Server: &http.Server{
-			Addr:    addr,
-			Handler: r,
+			Addr:         cfg.ListenAddr,
+			ReadTimeout:  cfg.ReadTimeout,
+			WriteTimeout: cfg.WriteTimeout,
+			IdleTimeout:  cfg.IdleTimeout,
+			Handler:      r,
 		},
 	}
 }

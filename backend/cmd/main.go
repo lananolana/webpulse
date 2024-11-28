@@ -54,7 +54,7 @@ func main() {
 	r := chi.NewRouter()
 
 	// Create http server
-	httpSrv := httpserver.New(r, cfg.App.HTTP.ListenAddr)
+	httpSrv := httpserver.New(r, cfg.App.HTTPServer)
 
 	// Register handlers
 	handlers.NewSiteHandler(r, siteClient, cfg.App.Mock)

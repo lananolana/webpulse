@@ -49,12 +49,7 @@ func (h *SiteHandler) GetSiteStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//// Clear request Path
-	//parsedUrl.Path = ""
-	//parsedUrl.RawPath = ""
-	//
-	//// Clear request Query
-	//parsedUrl.RawQuery = ""
+	// TODO validate request domain
 
 	if h.mock {
 		w.WriteHeader(http.StatusOK)

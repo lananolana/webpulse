@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -19,11 +20,20 @@ type App struct {
 
 	Test string `yaml:"test"`
 
-	HTTP HTTP `yaml:"http"`
+	HTTPServer HTTPServer `yaml:"http_server"`
+
+	HTTPClient HTTPClient `yaml:"http_client"`
 }
 
-type HTTP struct {
-	ListenAddr string `yaml:"listen_addr"`
+type HTTPServer struct {
+	ListenAddr   string        `yaml:"listen_addr"`
+	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	WriteTimeout time.Duration `yaml:"write_timeout"`
+	IdleTimeout  time.Duration `yaml:"idle_timeout"`
+}
+
+type HTTPClient struct {
+	Timeout time.Duration `yaml:"timeout"`
 }
 
 // MustLoad load config from file or panic if error
@@ -37,8 +47,6 @@ func MustLoad(configPath string) *Config {
 	if err = yaml.Unmarshal(data, &config); err != nil {
 		panic(err)
 	}
-
-	fmt.Println(config.App.Test)
 
 	fmt.Printf("config: %+v\n", config)
 
