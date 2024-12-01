@@ -28,7 +28,7 @@ paths:
       description: Get site status
       parameters:
         - in: query
-          name: url
+          name: domain
           schema:
             type: string
             example: google.com

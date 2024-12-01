@@ -48,7 +48,7 @@ func main() {
 	syscallCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	siteClient := httpclient.New()
+	siteClient := httpclient.New(cfg.App.HTTPClient)
 
 	// Create new http router
 	r := chi.NewRouter()

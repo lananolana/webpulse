@@ -8,7 +8,7 @@
 git clone https://github.com/lananolana/webpulse.git
 ```
 
-Создать конфиг приложения
+Создать конфиг приложения в папке infra
 
 ```bash
 cd webpulse/infra && nano app.yaml
@@ -17,17 +17,23 @@ cd webpulse/infra && nano app.yaml
 `app.yaml`
 ```yaml
 app:
-  # mock [true, false]
+  # mock [true, false] - Включает моковые ответы на запросы
   mock: true
 
-    # log_level: [DEBUG, INFO, WARNING, ERROR]
+  # log_level: [DEBUG, INFO, WARNING, ERROR]
   log_level: INFO
 
   # log_format: [text, json]
   log_format: json
 
-  http:
+  http_server:
     listen_addr: 0.0.0.0:8080
+    read_timeout: 10s
+    write_timeout: 10s
+    idle_timeout: 10s
+
+  http_client:
+    timeout: 10s
 ```
 
 Собрать и запустить контейнер с webpulse backend
