@@ -14,9 +14,7 @@ import (
 	"github.com/lananolana/webpulse/backend/pkg/logger/sl"
 )
 
-func ptrBool(b bool) *bool       { return &b }
-func ptrInt64(i int64) *int64    { return &i }
-func ptrString(s string) *string { return &s }
+func Ptr[T any](v T) *T { return &v }
 
 // HttpClient represents HTTP client
 type HttpClient struct {
@@ -62,9 +60,9 @@ func (c *HttpClient) GetServiceStats(ctx context.Context, domain string) dto.Ser
 
 	availability := createAvailability(resp)
 	performance := dto.Performance{
-		ResponseTimeMs:    ptrInt64(respTime),
-		TransferSpeedKbps: ptrInt64(transferSpeedKbps),
-		ResponseSizeKb:    ptrInt64(responseSizeKb),
+		ResponseTimeMs:    Ptr(respTime),
+		TransferSpeedKbps: Ptr(transferSpeedKbps),
+		ResponseSizeKb:    Ptr(responseSizeKb),
 		Optimization:      getOptimization(resp),
 	}
 
@@ -98,7 +96,7 @@ func (c *HttpClient) GetServiceStats(ctx context.Context, domain string) dto.Ser
 func newTargetUnavailableResponse() dto.ServiceStatsResponse {
 	return dto.ServiceStatsResponse{
 		Status:       dto.Failed,
-		Availability: &dto.Availability{IsAvailable: ptrBool(false)},
+		Availability: &dto.Availability{IsAvailable: Ptr(false)},
 	}
 }
 
@@ -126,7 +124,7 @@ func calculateTransferSpeed(bytesReceived int, durationMillis int64) int64 {
 
 func createAvailability(resp *http.Response) dto.Availability {
 	return dto.Availability{
-		IsAvailable:    ptrBool(true),
+		IsAvailable:    Ptr(true),
 		HTTPStatusCode: &resp.StatusCode,
 	}
 }
@@ -153,8 +151,8 @@ func getCORSInfo(resp *http.Response) dto.CORS {
 		allowOrigin = "*"
 	}
 	return dto.CORS{
-		AllowOrigin: ptrString(allowOrigin),
-		Enabled:     ptrBool(enabled),
+		AllowOrigin: Ptr(allowOrigin),
+		Enabled:     Ptr(enabled),
 	}
 }
 
@@ -175,7 +173,7 @@ func getDNSDetails(domain string) *dto.DnsRecords {
 
 	return &dto.DnsRecords{
 		A:     ips,
-		CNAME: ptrString(domain),
+		CNAME: Ptr(domain),
 		MX:    mxDomains,
 	}
 }
