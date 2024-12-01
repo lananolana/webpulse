@@ -18,8 +18,6 @@ type App struct {
 	LogLevel  string `yaml:"log_level"`
 	LogFormat string `yaml:"log_format"`
 
-	Test string `yaml:"test"`
-
 	HTTPServer HTTPServer `yaml:"http_server"`
 
 	HTTPClient HTTPClient `yaml:"http_client"`

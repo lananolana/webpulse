@@ -11,7 +11,6 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/lananolana/webpulse/backend/internal/config"
 	"github.com/lananolana/webpulse/backend/pkg/closer"
-	appmiddlewares "github.com/lananolana/webpulse/backend/pkg/http_tools/middlewares"
 	_ "github.com/swaggo/files"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -25,7 +24,7 @@ type Srv struct {
 func New(r *chi.Mux, cfg config.HTTPServer) *Srv {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
-	r.Use(appmiddlewares.Logging)
+	//r.Use(appmiddlewares.Logging)
 	r.Use(middleware.StripSlashes)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -38,7 +37,7 @@ func New(r *chi.Mux, cfg config.HTTPServer) *Srv {
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status": "OK"}`))
+		_, _ = w.Write([]byte(`{"status": "OK"}`))
 	})
 
 	r.Mount("/swagger/", http.StripPrefix("/swagger/", http.FileServer(http.Dir("./docs"))))
