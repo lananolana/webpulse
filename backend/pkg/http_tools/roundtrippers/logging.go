@@ -24,7 +24,7 @@ func (l *Logging) RoundTrip(r *http.Request) (*http.Response, error) {
 	start := time.Now()
 	resp, err := l.next.RoundTrip(r)
 
-	slog.Info(
+	slog.Debug(
 		"httpClient request",
 		slog.String("url", r.URL.String()),
 		slog.Duration("duration", time.Since(start)),

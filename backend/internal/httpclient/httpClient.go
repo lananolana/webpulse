@@ -2,119 +2,146 @@ package httpclient
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io"
-	"net"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/lananolana/webpulse/backend/internal/config"
 	"github.com/lananolana/webpulse/backend/internal/dto"
 	"github.com/lananolana/webpulse/backend/pkg/http_tools/roundtrippers"
+	"github.com/lananolana/webpulse/backend/pkg/logger/sl"
 )
 
-var (
-	ErrTargetUnavailable = errors.New("target unavailable")
-)
+// Ptr returns a pointer to the given value.
+func Ptr[T any](v T) *T { return &v }
 
-// HttpClient represents http client
+// HttpClient represents an HTTP client.
 type HttpClient struct {
 	client *http.Client
 }
 
-// New creates new http client
-func New() *HttpClient {
+// New creates a new HttpClient with the provided configuration.
+func New(cfg config.HTTPClient) *HttpClient {
 	return &HttpClient{
 		client: &http.Client{
-			Timeout:   10 * time.Second,
+			Timeout:   cfg.Timeout,
 			Transport: roundtrippers.NewLogging(),
 		},
 	}
 }
 
-// GetServiceStats sends request to url and returns response
-func (c *HttpClient) GetServiceStats(ctx context.Context, parsedUrl *url.URL) (dto.ServiceStatsResponse, error) {
-	// Creating request object
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsedUrl.String(), nil)
+// GetServiceStats sends a request to the specified domain and returns service statistics.
+func (c *HttpClient) GetServiceStats(ctx context.Context, domain string) dto.ServiceStatsResponse {
+	u, err := parseURL(domain)
 	if err != nil {
-		fmt.Println(err)
-		return dto.ServiceStatsResponse{}, err
+		slog.Error("Failed to parse URL", sl.Err(err))
+		return newFailedCreateRequestResponse()
 	}
 
-	start := time.Now()
+	resp, startRequest, err := c.makeRequest(ctx, u)
+	if err != nil {
+		return newTargetUnavailableResponse()
+	}
+	defer closeResponseBody(resp.Body)
 
-	// Making request
+	bytesResp, err := io.ReadAll(resp.Body)
+	if err != nil {
+		slog.Error("Failed to read response body", sl.Err(err))
+		return newTargetUnavailableResponse()
+	}
+
+	respTime := time.Since(startRequest).Milliseconds()
+	transferSpeedKbps := calculateTransferSpeed(len(bytesResp), respTime)
+	responseSizeKb := int64(len(bytesResp)) / 1024
+
+	availability := createAvailability(resp)
+	performance := dto.Performance{
+		ResponseTimeMs:    Ptr(respTime),
+		TransferSpeedKbps: Ptr(transferSpeedKbps),
+		ResponseSizeKb:    Ptr(responseSizeKb),
+		Optimization:      getOptimization(resp),
+	}
+
+	sslInfo := getSSLInfo(resp)
+	corsInfo := getCORSInfo(resp)
+
+	startDNS := time.Now()
+	dnsRecords := getDNSDetails(u.Host)
+	dnsResponseTimeMs := time.Since(startDNS).Milliseconds()
+
+	serverInfo, err := getServerInfo(u.Host, resp, dnsResponseTimeMs, dnsRecords)
+	if err != nil {
+		slog.Error("Failed to get server info", sl.Err(err))
+		return newTargetUnavailableResponse()
+	}
+
+	return dto.ServiceStatsResponse{
+		Status:       dto.Success,
+		Availability: &availability,
+		Performance:  &performance,
+		Security: &dto.Security{
+			SSL:  sslInfo,
+			CORS: &corsInfo,
+		},
+		ServerInfo: serverInfo,
+	}
+}
+
+// makeRequest attempts to make an HTTP request to the given URL.
+func (c *HttpClient) makeRequest(ctx context.Context, u *url.URL) (*http.Response, time.Time, error) {
+	if u.Scheme != "" {
+		return c.doRequest(ctx, u)
+	}
+
+	schemes := []string{"https", "http"}
+	for _, scheme := range schemes {
+		u.Scheme = scheme
+		resp, startRequest, err := c.doRequest(ctx, u)
+		if err == nil {
+			return resp, startRequest, nil
+		}
+	}
+	slog.Error("Failed to perform request with both https and http schemes")
+	return nil, time.Time{}, http.ErrHandlerTimeout
+}
+
+// doRequest performs the HTTP request and returns the response.
+func (c *HttpClient) doRequest(ctx context.Context, u *url.URL) (*http.Response, time.Time, error) {
+	urlStr := u.String()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, urlStr, nil)
+	if err != nil {
+		slog.Error("Failed to create request", sl.Err(err))
+		return nil, time.Time{}, err
+	}
+
+	startRequest := time.Now()
 	resp, err := c.client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return wrapTargetUnavailableResponse()
+		slog.Error("Failed to perform request", sl.Err(err))
+		return nil, startRequest, err
 	}
 
-	availability := dto.Availability{
-		IsAvailable:    true,
-		HTTPStatusCode: &resp.StatusCode,
-	}
+	return resp, startRequest, nil
+}
 
-	performance := dto.Performance{
-		ResponseTime:  time.Since(start).String(),
-		DownloadSpeed: formatSpeed(int64(float64(resp.ContentLength) / time.Since(start).Seconds())),
-	}
-
-	sslInfo := dto.SSL{
-		IsValid:              resp.TLS != nil && resp.TLS.HandshakeComplete,
-		ExpiresAt:            resp.TLS.PeerCertificates[0].NotAfter,
-		Issuer:               resp.TLS.PeerCertificates[0].Issuer.String(),
-		CertificateAuthority: resp.TLS.PeerCertificates[0].Subject.String(),
-	}
-
-	dns := getDNSDetails(parsedUrl.Hostname())
-
-	// Deferred response body discard and close
-	defer func(Body io.ReadCloser) {
-		_, _ = io.Copy(io.Discard, Body)
-		_ = Body.Close()
-	}(resp.Body)
-
+func newTargetUnavailableResponse() dto.ServiceStatsResponse {
 	return dto.ServiceStatsResponse{
-		Target:       resp.Request.URL.String(),
-		Availability: availability,
-		Performance:  performance,
-		SSL:          sslInfo,
-		DNS:          dns,
-		CORSDomains:  []string{},
-	}, nil
+		Status:       dto.Failed,
+		Availability: &dto.Availability{IsAvailable: Ptr(false)},
+	}
 }
 
-func wrapTargetUnavailableResponse() (dto.ServiceStatsResponse, error) {
+func newFailedCreateRequestResponse() dto.ServiceStatsResponse {
 	return dto.ServiceStatsResponse{
-		Availability: dto.Availability{
-			IsAvailable:    false,
-			HTTPStatusCode: nil,
-		},
-	}, ErrTargetUnavailable
+		Status: dto.Failed,
+	}
 }
 
-func formatSpeed(bytesPerSecond int64) string {
-	if bytesPerSecond < 1024 {
-		return fmt.Sprintf("%d Bps", bytesPerSecond)
-	} else if bytesPerSecond < 1024*1024 {
-		return fmt.Sprintf("%.2f KBps", float64(bytesPerSecond)/1024)
-	} else if bytesPerSecond < 1024*1024*1024 {
-		return fmt.Sprintf("%.2f MBps", float64(bytesPerSecond)/(1024*1024))
-	}
-	return fmt.Sprintf("%.2f GBps", float64(bytesPerSecond)/(1024*1024*1024))
-}
-
-func getDNSDetails(domain string) dto.DNS {
-	start := time.Now()
-	ips, err := net.LookupHost(domain)
-	if err != nil {
-		return dto.DNS{}
-	}
-	elapsed := time.Since(start)
-	return dto.DNS{
-		ResponseTime: elapsed.String(),
-		Servers:      ips,
+func closeResponseBody(body io.ReadCloser) {
+	if body != nil {
+		_, _ = io.Copy(io.Discard, body)
+		_ = body.Close()
 	}
 }
