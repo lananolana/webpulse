@@ -15,6 +15,7 @@ func parseURL(domain string) (*url.URL, error) {
 	}
 	if u.Host == "" {
 		u.Host = domain
+		u.Path = ""
 	}
 	return u, nil
 }
