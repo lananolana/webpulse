@@ -116,6 +116,5 @@ func getOptimization(resp *http.Response) *string {
 		return &contentEncoding
 	}
 
-	none := "none"
-	return &none
+	return nil
 }
