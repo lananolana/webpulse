@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/lananolana/webpulse/backend/tests/client"
-	"github.com/lananolana/webpulse/backend/tests/step"
+	"github.com/lananolana/webpulse/backend/tests/integration/client"
+	"github.com/lananolana/webpulse/backend/tests/integration/step"
 )
 
 var (

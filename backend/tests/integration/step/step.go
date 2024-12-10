@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/lananolana/webpulse/backend/internal/dto"
-	"github.com/lananolana/webpulse/backend/tests/client"
+	"github.com/lananolana/webpulse/backend/tests/integration/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

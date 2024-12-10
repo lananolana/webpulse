@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/lananolana/webpulse/backend/tests/testdata"
+	"github.com/lananolana/webpulse/backend/tests/integration/testdata"
 )
 
 func TestDomainStatus(t *testing.T) {
