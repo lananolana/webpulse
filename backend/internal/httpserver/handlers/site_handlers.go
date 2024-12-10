@@ -26,7 +26,7 @@ func NewSiteHandler(r *chi.Mux, client SiteClient, mock bool) *SiteHandler {
 		mock:   mock,
 	}
 
-	r.Get("/status", handler.GetSiteStatus)
+	r.Get("/api/status", handler.GetSiteStatus)
 
 	return handler
 }

@@ -5,6 +5,9 @@ info:
   version: 1.0.0
 servers:
   - url: 'http://localhost:8080'
+    description: Webpulse backend direct url
+  - url: 'http://localhost'
+    description: Webpulse backend via nginx
 paths:
   /health:
     get:
