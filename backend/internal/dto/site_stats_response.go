@@ -12,6 +12,7 @@ const (
 // ServiceStatsResponse represents the overall site status response.
 type ServiceStatsResponse struct {
 	Status       Status        `json:"status"`
+	Msg          *string       `json:"msg,omitempty"`
 	Availability *Availability `json:"availability,omitempty"`
 	Performance  *Performance  `json:"performance,omitempty"`
 	Security     *Security     `json:"security,omitempty"`

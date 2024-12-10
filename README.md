@@ -41,3 +41,7 @@ app:
 docker-compose -f infra/docker-compose.yml up -d --build
 ```
 
+Swagger:
+```
+http://localhost:8080/docs/index.html
+```

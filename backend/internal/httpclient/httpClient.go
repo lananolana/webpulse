@@ -2,6 +2,8 @@ package httpclient
 
 import (
 	"context"
+	"errors"
+	"github.com/lananolana/webpulse/backend/pkg/dnsvalidator"
 	"io"
 	"log/slog"
 	"net/http"
@@ -19,37 +21,70 @@ func Ptr[T any](v T) *T { return &v }
 
 // HttpClient represents an HTTP client.
 type HttpClient struct {
-	client *http.Client
+	client             *http.Client
+	EnableMockResponse bool
 }
 
 // New creates a new HttpClient with the provided configuration.
-func New(cfg config.HTTPClient) *HttpClient {
+func New(cfg config.HTTPClient, enableMockResponse bool) *HttpClient {
 	return &HttpClient{
 		client: &http.Client{
 			Timeout:   cfg.Timeout,
 			Transport: roundtrippers.NewLogging(),
 		},
+		EnableMockResponse: enableMockResponse,
 	}
 }
 
 // GetServiceStats sends a request to the specified domain and returns service statistics.
 func (c *HttpClient) GetServiceStats(ctx context.Context, domain string) dto.ServiceStatsResponse {
+
+	if domain == "" {
+		slog.Error("empty domain name")
+		return dto.ServiceStatsResponse{
+			Status: dto.Failed,
+			Msg:    Ptr("empty domain name"),
+		}
+	}
+
+	if !dnsvalidator.DomainIsValid(domain) {
+		slog.Error("Invalid domain name format", slog.String("domain", domain))
+		return dto.ServiceStatsResponse{
+			Status: dto.Failed,
+			Msg:    Ptr("Invalid domain name format"),
+		}
+	}
+
 	u, err := parseURL(domain)
 	if err != nil {
 		slog.Error("Failed to parse URL", sl.Err(err))
-		return newFailedCreateRequestResponse()
+		return dto.ServiceStatsResponse{
+			Status: dto.Failed,
+			Msg:    Ptr("Failed to parse URL"),
+		}
+	}
+
+	if c.EnableMockResponse {
+		return mockServiceStatResponse
 	}
 
 	resp, startRequest, err := c.makeRequest(ctx, u)
 	if err != nil {
-		return newTargetUnavailableResponse()
+		slog.Error("Failed to make request", sl.Err(err))
+		return dto.ServiceStatsResponse{
+			Status: dto.Failed,
+			Msg:    Ptr("Failed to make request"),
+		}
 	}
 	defer closeResponseBody(resp.Body)
 
 	bytesResp, err := io.ReadAll(resp.Body)
 	if err != nil {
 		slog.Error("Failed to read response body", sl.Err(err))
-		return newTargetUnavailableResponse()
+		return dto.ServiceStatsResponse{
+			Status: dto.Failed,
+			Msg:    Ptr("Failed to read response body"),
+		}
 	}
 
 	respTime := time.Since(startRequest).Milliseconds()
@@ -74,7 +109,10 @@ func (c *HttpClient) GetServiceStats(ctx context.Context, domain string) dto.Ser
 	serverInfo, err := getServerInfo(u.Host, resp, dnsResponseTimeMs, dnsRecords)
 	if err != nil {
 		slog.Error("Failed to get server info", sl.Err(err))
-		return newTargetUnavailableResponse()
+		return dto.ServiceStatsResponse{
+			Status: dto.Failed,
+			Msg:    Ptr("Failed to get server info"),
+		}
 	}
 
 	return dto.ServiceStatsResponse{
@@ -104,7 +142,7 @@ func (c *HttpClient) makeRequest(ctx context.Context, u *url.URL) (*http.Respons
 		}
 	}
 	slog.Error("Failed to perform request with both https and http schemes")
-	return nil, time.Time{}, http.ErrHandlerTimeout
+	return nil, time.Time{}, errors.New("failed to perform request with both https and http schemes")
 }
 
 // doRequest performs the HTTP request and returns the response.
@@ -116,6 +154,9 @@ func (c *HttpClient) doRequest(ctx context.Context, u *url.URL) (*http.Response,
 		return nil, time.Time{}, err
 	}
 
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Accept", "*/*")
+
 	startRequest := time.Now()
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -124,19 +165,6 @@ func (c *HttpClient) doRequest(ctx context.Context, u *url.URL) (*http.Response,
 	}
 
 	return resp, startRequest, nil
-}
-
-func newTargetUnavailableResponse() dto.ServiceStatsResponse {
-	return dto.ServiceStatsResponse{
-		Status:       dto.Failed,
-		Availability: &dto.Availability{IsAvailable: Ptr(false)},
-	}
-}
-
-func newFailedCreateRequestResponse() dto.ServiceStatsResponse {
-	return dto.ServiceStatsResponse{
-		Status: dto.Failed,
-	}
 }
 
 func closeResponseBody(body io.ReadCloser) {
