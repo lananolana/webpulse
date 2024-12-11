@@ -16,7 +16,7 @@ paths:
       responses:
         200:
           description: OK
-  /status:
+  /api/status:
     get:
       summary: Get site status
       description: Get site status
