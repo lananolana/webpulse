@@ -26,7 +26,7 @@ func NewClient(host string) *Client {
 
 func (c *Client) GetSiteStatus(t *testing.T, queryParam string) (*dto.ServiceStatsResponse, error) {
 
-	path := fmt.Sprintf("/status?domain=%s", queryParam)
+	path := fmt.Sprintf("/api/status?domain=%s", queryParam)
 	responseRaw, err := c.get(path)
 	require.NoError(t, err, "Failed to get response")
 	defer responseRaw.Body.Close()
