@@ -48,7 +48,7 @@ func main() {
 	syscallCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	siteClient := httpclient.New(cfg.App.HTTPClient)
+	siteClient := httpclient.New(cfg.App.HTTPClient, cfg.App.Mock)
 
 	// Create new http router
 	r := chi.NewRouter()
@@ -57,7 +57,7 @@ func main() {
 	httpSrv := httpserver.New(r, cfg.App.HTTPServer)
 
 	// Register handlers
-	handlers.NewSiteHandler(r, siteClient, cfg.App.Mock)
+	handlers.NewSiteHandler(r, siteClient)
 
 	// Run http server
 	httpSrv.MustRun()

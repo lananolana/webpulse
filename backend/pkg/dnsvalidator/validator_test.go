@@ -27,10 +27,18 @@ func TestDomainIsValid(t *testing.T) {
 		{"Invalid domain with https and special chars", "https://exa$mple.com", false},
 		{"Valid subdomain with http", "http://sub.example.com", true},
 		{"Valid subdomain with https", "https://sub.example.com", true},
+		{"Valid domain with trailing slash", "example.com/", true},
+		{"Valid subdomain with trailing slash", "sub.example.com/", true},
+		{"Valid Cyrillic domain with trailing slash", "пример.рф/", true},
+		{"Valid domain with http and trailing slash", "http://example.com/", true},
+		{"Valid domain with https and trailing slash", "https://example.com/", true},
+		{"Valid Cyrillic domain with http and trailing slash", "http://пример.рф/", true},
+		{"Valid Cyrillic domain with https and trailing slash", "https://пример.рф/", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := DomainIsValid(tt.domain)
 			if result != tt.expected {
 				t.Errorf("domainIsValid(%q) = %v; want %v", tt.domain, result, tt.expected)
