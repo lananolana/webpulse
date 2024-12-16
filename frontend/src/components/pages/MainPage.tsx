@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import logo from '../../assets/images/logo.svg';
 import styles from './MainPage.module.scss';
 import { LinkButton } from '../UI/LinkButton/LinkButton';
@@ -6,6 +6,7 @@ import { Form } from '../UI/Form/Form';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '../../utils/hooks';
 import { getInfo } from '../../services/mainSlice';
+import ResBlock from '../UI/ResBlock/ResBlock';
 
 function MainPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,9 +27,6 @@ function MainPage() {
       <>
         <div className={styles.logo}>
           <img src={logo} alt="Логотип"/>
-          <h1 className={styles.logo__title}>
-            WEBPULSE
-          </h1>
         </div>
         <Form onClick={onClick}/>
       </> : 
@@ -49,14 +47,17 @@ function MainPage() {
             onClick={onClick}
           />
           <LinkButton 
-            text={'yandex.com'}
+            text={'yandex.ru'}
             onClick={onClick}
           />
         </> : (errorMessage !== null) &&
         <p className={styles.error__text}>
           Упс! Что-то пошло не так. Попробуйте ещё раз.
         </p>}
-      </div>    
+      </div>
+      {!firstRender && 
+        <ResBlock />
+      }
     </main>
   )
 }

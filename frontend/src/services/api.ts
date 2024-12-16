@@ -10,15 +10,21 @@ class Api {
 
   async getInfo(data: string): Promise<void> {
     //const req = {'path': data}
-    const res = await fetch(`${this.url}?domain=${data}`, {
-      method: 'GET',
+    const res = await fetch(`http://localhost/api/status?domain=${data}`, {
+      //method: 'GET',
       mode: 'no-cors',
+      //sec-fetch-site: 'cross-site',
+      //referrerPolicy: "strict-origin-when-cross-origin",
+      /*headers: {
+        'Content-Type': 'application/json',
+      },
+      */credentials: 'include',
       /*headers: {
         'Content-Type': 'application/json',
       },*/
-      credentials: 'include',
+      //credentials: 'include',
     })
-    return await checkResponse(res)
+    return await /*checkResponse(*/res.json()/*)*/
   }
 
   /*
@@ -38,4 +44,4 @@ class Api {
   */
 }
 
-export const api = new Api(BASE_URL, '')
+export const api = new Api(BASE_URL, '/api/status')

@@ -1,6 +1,7 @@
 .form {
-  margin-block-end: 36px;
   position: relative;
+  display: flex;
+  flex-direction: row;
 
   &_search {
     margin-inline-end: 19px;
@@ -13,6 +14,7 @@
     box-shadow: none;
     border: none;
     padding: 16px 16px 16px 44px;
+    margin-bottom: 4px;
   }
 
   &_search::placeholder {
@@ -38,6 +40,19 @@
       opacity: 0.7;
       transition: 0.5s ease;
     }
+
+    &:disabled {
+      background-color: #E9ECEE;
+      color: #9BADBF;
+      border: none;
+
+      &:hover {
+        background-color: #E9ECEE;
+        color: #9BADBF;
+        cursor: auto;
+        opacity: 1;
+      }
+    }
   }
 
   &_img {
@@ -49,7 +64,22 @@
     background-color: white;
   }
 }
-  
+
+.error_text {
+  color: #E32144;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  margin-block-end: 36px;
+  margin-top: 8px;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+
   
   
   
