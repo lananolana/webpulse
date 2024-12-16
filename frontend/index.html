@@ -2,44 +2,13 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!--ssr-helmet-->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <title>WEBPULSE</title>
   </head>
   <body>
-    <!--ssr-initial-state-->
-    <div id="root"><!--ssr-outlet--></div>
+    <div id="root"></div>
     <script type="module" src="src/main.tsx"></script>
   </body>
-</html>
-
-<!DOCTYPE html>
-<html lang="ru">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        
-        <title>WEBPULSE</title>
-        <link rel="stylesheet" href="./fonts/fonts.css" />
-        <link rel="stylesheet" href="./styles/style.css" />
-    </head>
-    <body>
-        <main class="main">
-            <div class="logo">
-                <img src="./images/logo.svg" alt="Логотип">
-                <h1 class="logo__title">WEBPULSE</h1>
-            </div>
-            <form class="form" action="" method="get">
-                    <input class="form_search" name="search" placeholder="Введите URL для проверки" type="search">
-                    <button class="form_button" type="submit">Проверить</button>
-            </form>
-            <div class="more_often">
-                <h2 class="more_often__title">Чаще всего ищут:</h2>
-                    <button class="more_often__button" type="button">google.com</button>
-                    <button class="more_often__button" type="button">telegram.ru</button>
-                    <button class="more_often__button" type="button">facebook.com</button>
-            </div>    
-        </main>
-    </body>
 </html>
