@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC } from 'react';
 import styles from './ResBlock.module.scss';
 import classNames from 'classnames';
 

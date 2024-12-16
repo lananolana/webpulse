@@ -55,7 +55,7 @@
     }
 
     div:not(:has(input)) {
-      height: 60px !important;
+      height: 40px !important;
     }
   }
 }
@@ -80,8 +80,8 @@
 }
 
 .error__text {
-  color: white;
-  font-size: 40px;
+  color: #9BADBF;
+  font-size: 32px;
   line-height: 43px;
   max-width: 505px;
   font-weight: 700;

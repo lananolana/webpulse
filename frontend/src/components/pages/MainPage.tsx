@@ -12,6 +12,8 @@ function MainPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [firstRender, setFirstRender] = useState<boolean>(true);
   const errorMessage = useAppSelector((state) => state.data.errorMessage);
+  const [form, setForm] = useState('');
+  const data = useAppSelector((state) => state.data.data);
 
   function onClick(e: React.MouseEvent, text:string) {
     e.preventDefault();
@@ -28,11 +30,17 @@ function MainPage() {
         <div className={styles.logo}>
           <img src={logo} alt="Логотип"/>
         </div>
-        <Form onClick={onClick}/>
+        <Form 
+          onClick={onClick}
+          form={form}
+          setForm={setForm}/>
       </> : 
       <div className={styles.topRow}>
       <img src={logo} alt="Логотип"/>
-      <Form onClick={onClick}/>
+      <Form 
+        onClick={onClick}
+        form={form}
+        setForm={setForm}/>
       </div>}
       <div className={styles.more_often}>
         {!errorMessage ? 
@@ -55,7 +63,7 @@ function MainPage() {
           Упс! Что-то пошло не так. Попробуйте ещё раз.
         </p>}
       </div>
-      {!firstRender && 
+      {!firstRender && !errorMessage && data &&
         <ResBlock />
       }
     </main>

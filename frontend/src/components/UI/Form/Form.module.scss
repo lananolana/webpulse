@@ -3,6 +3,12 @@
   display: flex;
   flex-direction: row;
 
+  &:has(button[disabled]) {
+    input:focus-visible {
+      outline-color: #E32144;
+    }
+  }
+
   &_search {
     margin-inline-end: 19px;
     border-radius: 10px;
@@ -70,8 +76,8 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
-  margin-block-end: 36px;
-  margin-top: 8px;
+  margin-block-end: 16px;
+  margin-top: 4px;
 }
 
 .inputContainer {

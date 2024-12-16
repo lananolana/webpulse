@@ -9,39 +9,11 @@ class Api {
   }
 
   async getInfo(data: string): Promise<void> {
-    //const req = {'path': data}
     const res = await fetch(`http://localhost/api/status?domain=${data}`, {
-      //method: 'GET',
-      mode: 'no-cors',
-      //sec-fetch-site: 'cross-site',
-      //referrerPolicy: "strict-origin-when-cross-origin",
-      /*headers: {
-        'Content-Type': 'application/json',
-      },
-      */credentials: 'include',
-      /*headers: {
-        'Content-Type': 'application/json',
-      },*/
-      //credentials: 'include',
-    })
-    return await /*checkResponse(*/res.json()/*)*/
-  }
-
-  /*
-    async getInfo(data: string): Promise<void> {
-    //const req = {'path': data}
-    const res = await fetch(`${this.url}`, {
-      method: '',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(/*req*//*data),
-      credentials: 'include',
+      method: 'GET',
     })
     return await checkResponse(res)
   }
-  */
 }
 
 export const api = new Api(BASE_URL, '/api/status')

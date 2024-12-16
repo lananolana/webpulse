@@ -72,11 +72,11 @@
   justify-content: space-between;
   background-color: #202124;
   z-index: 1;
-  border-radius: 12px !important;
+  border-radius: 14px !important;
 }
 
 .digit {
-  font-size: 64px;
+  font-size: 44px;
   color: white;
   font-weight: 700;
   margin: 0;
@@ -91,7 +91,7 @@
 }
 
 .smallDigit {
-  font-size: 24px;
+  font-size: 22px;
   color: white;
   font-weight: 700;
   line-height: 24px;
@@ -108,4 +108,13 @@
   font-weight: 400;
   margin: 0;
   line-height: 24px;
+}
+
+.error__text {
+  color: #9BADBF;
+  font-size: 32px;
+  line-height: 43px;
+  max-width: 505px;
+  font-weight: 700;
+  text-align: center;
 }
