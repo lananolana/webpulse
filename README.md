@@ -18,7 +18,7 @@ cd webpulse/infra && nano app.yaml
 ```yaml
 app:
   # mock [true, false] - Включает моковые ответы на запросы
-  mock: true
+  mock: false
 
   # log_level: [DEBUG, INFO, WARNING, ERROR]
   log_level: INFO
