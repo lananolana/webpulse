@@ -21,14 +21,14 @@ func Ptr[T any](v T) *T { return &v }
 
 // HttpClient represents an HTTP client.
 type HttpClient struct {
-	client             *http.Client
+	*http.Client
 	EnableMockResponse bool
 }
 
 // New creates a new HttpClient with the provided configuration.
 func New(cfg config.HTTPClient, enableMockResponse bool) *HttpClient {
 	return &HttpClient{
-		client: &http.Client{
+		Client: &http.Client{
 			Timeout:   cfg.Timeout,
 			Transport: roundtrippers.NewLogging(),
 		},
@@ -158,7 +158,7 @@ func (c *HttpClient) doRequest(ctx context.Context, u *url.URL) (*http.Response,
 	req.Header.Set("Accept", "*/*")
 
 	startRequest := time.Now()
-	resp, err := c.client.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		slog.Error("Failed to perform request", sl.Err(err))
 		return nil, startRequest, err
