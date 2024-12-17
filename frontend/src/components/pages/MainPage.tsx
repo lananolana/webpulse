@@ -21,6 +21,7 @@ function MainPage() {
       setFirstRender(false)
     }
     dispatch(getInfo(text));
+    setForm(text)
   }
 
   return (
